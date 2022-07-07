@@ -5,6 +5,7 @@ class Timer {
   #openTimerBtn;
   #timerContainerHTML;
   #startTimerHTML;
+  #cofirmHTML;
   #startTimerConteiner;
   #timerForm;
   #clearInterval;
@@ -18,6 +19,7 @@ class Timer {
     this.#openTimerBtn = null;
     this.#timerContainerHTML = false;
     this.#startTimerHTML = false;
+    this.#cofirmHTML = false;
     this.#startTimerConteiner = null;
     this.#timerForm = null;
     this.#clearInterval = null;
@@ -218,18 +220,21 @@ class Timer {
           });
 
           setTimeout(() => {
-            this.#renderConfirmNewTimer();
-            timerTitle.textContent = "Запустить Новый Таймер?";
-            const confirmContainer =
-              document.querySelector("#confirmContainer");
+            if (!this.#cofirmHTML) {
+              this.#cofirmHTML = true;
+              this.#renderConfirmNewTimer();
+              timerTitle.textContent = "Запустить Новый Таймер?";
+              const confirmContainer =
+                document.querySelector("#confirmContainer");
 
-            setTimeout(() => {
-              this.#setAnimation(
-                confirmContainer,
-                ["transform: translateX(0%);"],
-                0
-              );
-            });
+              setTimeout(() => {
+                this.#setAnimation(
+                  confirmContainer,
+                  ["transform: translateX(0%);"],
+                  0
+                );
+              });
+            }
           }, 360);
         }, 1000);
 
@@ -253,32 +258,39 @@ class Timer {
         const isStopTimerBtn = event.target.dataset.btn === "stop";
 
         if (isStopTimerBtn) {
-          this.#startTimerHTML = false;
-          timerTitle.textContent = "Таймер Остановлен!";
-          stopTimerBtn.textContent = "Остановлен!";
-          clearInterval(this.#clearInterval);
-
-          setTimeout(() => {
-            this.#setAnimation(startTimer, ["transform: translateX(110%);"], 0);
-            setTimeout(() => {
-              startTimer.remove();
-            }, 350);
-          }, 1700);
-
-          setTimeout(() => {
-            this.#renderConfirmNewTimer();
-            timerTitle.textContent = "Запустить Новый Таймер?";
-            const confirmContainer =
-              document.querySelector("#confirmContainer");
+          if (!this.#cofirmHTML) {
+            this.#cofirmHTML = true;
+            this.#startTimerHTML = false;
+            timerTitle.textContent = "Таймер Остановлен!";
+            stopTimerBtn.textContent = "Остановлен!";
+            clearInterval(this.#clearInterval);
 
             setTimeout(() => {
               this.#setAnimation(
-                confirmContainer,
-                ["transform: translateX(0%);"],
+                startTimer,
+                ["transform: translateX(110%);"],
                 0
               );
-            });
-          }, 2200);
+              setTimeout(() => {
+                startTimer.remove();
+              }, 350);
+            }, 1700);
+
+            setTimeout(() => {
+              this.#renderConfirmNewTimer();
+              timerTitle.textContent = "Запустить Новый Таймер?";
+              const confirmContainer =
+                document.querySelector("#confirmContainer");
+
+              setTimeout(() => {
+                this.#setAnimation(
+                  confirmContainer,
+                  ["transform: translateX(0%);"],
+                  0
+                );
+              });
+            }, 2200);
+          }
         }
       },
       { once: true }
@@ -292,6 +304,7 @@ class Timer {
       "click",
       () => {
         clearInterval(this.#clearInterval);
+        this.#cofirmHTML = false;
         this.#timerContainerHTML = false;
         this.#startTimerHTML = false;
         this.#setAnimation(timerContainer, ["transform: scale(0);"], 0);
@@ -315,6 +328,7 @@ class Timer {
       const isCancelBtn = target.dataset.btn === "cancel";
 
       if (isConfirmBtn) {
+        this.#cofirmHTML = false;
         setTimeout(() => {
           timerContainer.append(this.#createrTimerForm());
           this.#timerForm = document.querySelector("#timerForm");
@@ -344,6 +358,7 @@ class Timer {
       }
 
       if (isCancelBtn) {
+        this.#cofirmHTML = false;
         this.#timerContainerHTML = false;
         this.#setAnimation(timerContainer, ["transform: scale(0);"], 0);
         setTimeout(() => {
